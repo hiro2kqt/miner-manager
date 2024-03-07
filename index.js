@@ -2,6 +2,7 @@ const { default: axios } = require("axios");
 const express = require("express");
 const pm2 = require("pm2");
 const app = express();
+require("./chatbot");
 require("dotenv").config();
 const listNode = JSON.parse(process.env.NODE_URL);
 app.get("/", (req, res) => {
