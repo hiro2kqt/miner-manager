@@ -11,6 +11,7 @@
     "pm2": "^5.3.1"
   },
   "scripts": {
-    "start": "npx nodemon index.js"
+    "start": "npx nodemon index.js",
+    "bot": "npx nodemon chatbot.js"
   }
 }

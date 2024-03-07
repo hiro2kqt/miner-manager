@@ -6,7 +6,7 @@ const listNode = JSON.parse(process.env.NODE_URL);
 const bot = new TelegramBot("6723022602:AAFIxxvopAaEq5d2cNcX0d5zKprbz31BnAI", {
   polling: true,
 });
-const getAcceptID = (id) => listNode?.find((e) => `/${e?.name}` == id);
+const CORE_URL = `https://miner-manager.vercel.app`;
 let actions = [];
 const addAction = async (msg) => {
   try {
@@ -21,42 +21,34 @@ const addAction = async (msg) => {
     await bot.sendMessage(
       msg.chat.id,
       `Which node:
-Huy: /node01 /node02
-Thien: /node03 /node04`
+Huy: 
+/${listNode[0]}
+/${listNode[1]}
+Thien:
+/${listNode[2]}
+/${listNode[3]}`
     );
   } catch (error) {
     console.log("error add action");
   }
 };
+const addressShortener = (addr = "", digits = 5) => {
+  digits = 2 * digits >= addr.length ? addr.length : digits;
+  return `${addr.substring(0, digits)}...${addr.slice(-digits)}`;
+};
 bot.on("message", (msg) => {
   const chatId = msg.chat.id;
   const getStatus = async () => {
-    const status = await Promise.all(
-      listNode.map(async (obj) => {
-        try {
-          const resp = await axios.get(`http://${obj?.url}/pm2/jobs`);
-          return resp.data;
-        } catch (error) {
-          return false;
-        }
-      })
-    );
+    const resp = await axios.get(`${CORE_URL}/status`);
+    const data = resp?.data;
     await bot.sendMessage(
       chatId,
-      `${status
-        .map((e, index) =>
-          e == false
-            ? `${listNode[
-                index
-              ]?.name?.toUpperCase()}: <code>Server not connected</code>\n`
-            : `<b>${listNode[index]?.name?.toUpperCase()}</b>:\n${e
-                ?.map(
-                  (j) =>
-                    `${j?.name}: <code>${
-                      j?.status ? "running" : "offline"
-                    }</code>\n`
-                )
-                .join("")}`
+      `${data
+        .map(
+          (e, index) => `<b>${addressShortener(e?.address)}</b>
+Claim: <code>${e?.claim}</code>
+Normal mine: <code>${e?.start}</code>
+Automine: <code>${e?.["start-automine"]}</code>\n\n`
         )
         .join("")}`,
       {
@@ -87,17 +79,25 @@ bot.on("message", (msg) => {
       addAction(msg);
       break;
     default:
-      const selectedNode = getAcceptID(msg?.text);
+      const selectedNode = msg?.text?.replace("/", "");
       const findAction = actions.find((e) => e?.from == msg?.from?.id);
-      try {
-        async () => {
-          await axios.get(
-            `http://${selectedNode?.url}/action?job=${findAction}`
-          );
-          await getStatus();
-        };
-      } catch (error) {
-        bot.sendMessage(chatId, "Action fail!");
+      console.log(findAction);
+      if (selectedNode && findAction) {
+        try {
+          (async () => {
+            await bot.sendMessage(chatId, "Loading...");
+            console.log(selectedNode, findAction);
+            await axios.get(
+              `${CORE_URL}/update?address=${selectedNode}&action=${findAction?.action?.replace(
+                "/",
+                ""
+              )}`
+            );
+            await getStatus();
+          })();
+        } catch (error) {
+          bot.sendMessage(chatId, "Action fail!");
+        }
       }
       break;
   }
