@@ -23,7 +23,10 @@ const addAction = async (msg) => {
       `Which node:
 Huy: 
 /${listNode[0]}
-/${listNode[1]}`
+/${listNode[1]}
+Thien: 
+/${listNode[2]}
+/${listNode[3]}`
     );
   } catch (error) {
     console.log("error add action");
