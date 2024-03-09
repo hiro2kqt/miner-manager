@@ -6,7 +6,7 @@ const listNode = JSON.parse(process.env.NODE_URL);
 const bot = new TelegramBot("6723022602:AAFIxxvopAaEq5d2cNcX0d5zKprbz31BnAI", {
   polling: true,
 });
-const CORE_URL = `https://miner-manager.vercel.app`;
+const CORE_URL = `https://miner-manager-tg0l.onrender.com`;
 let actions = [];
 const addAction = async (msg) => {
   try {
