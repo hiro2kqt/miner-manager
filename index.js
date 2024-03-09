@@ -1,50 +1,61 @@
-const { default: axios } = require("axios");
 const express = require("express");
-const pm2 = require("pm2");
+const { readFileSync, writeFileSync } = require("fs");
 const app = express();
 require("dotenv").config();
-const listNode = JSON.parse(process.env.NODE_URL);
-var nodeData = [
-  ...listNode.map((e) => ({
-    address: e,
-    claim: false,
-    "start-automine": false,
-    start: false,
-  })),
-];
+
+const getStatus = async () => {
+  const data = readFileSync("status.json", "utf8");
+  return JSON.parse(data);
+};
+getStatus();
 app.get("/", (req, res) => {
   res.send("Arbius manager api");
 });
 app.get("/status", async (req, res) => {
+  const statusLog = await getStatus();
   const address = req?.query?.address;
-  if (address) res.json(nodeData.find((e) => e?.address == address));
-  else res.json(nodeData);
+  if (address) res.json(statusLog.find((e) => e?.address == address));
+  else res.json(statusLog);
 });
+const updateStatus = async (data) => {
+  try {
+    writeFileSync("status.json", JSON.stringify(data));
+  } catch (error) {
+    console.error("Error updating document:", error);
+  }
+};
+
 app.get("/update", async (req, res) => {
   try {
+    let statusLog = await getStatus();
     const address = req?.query?.address;
-    const nodeIndex = nodeData.findIndex((e) => e?.address == address);
+    const nodeIndex = statusLog.findIndex((e) => e?.address == address);
     switch (req?.query?.action) {
       case "claim":
-        nodeData[nodeIndex]["claim"] = true;
+        statusLog[nodeIndex]["claim"] = true;
+        await updateStatus(statusLog);
         break;
       case "stopclaim":
-        nodeData[nodeIndex]["claim"] = false;
+        statusLog[nodeIndex]["claim"] = false;
+        await updateStatus(statusLog);
         break;
       case "automine":
-        nodeData[nodeIndex]["start-automine"] = true;
-        nodeData[nodeIndex]["start"] = false;
+        statusLog[nodeIndex]["start-automine"] = true;
+        statusLog[nodeIndex]["start"] = false;
+        await updateStatus(statusLog);
         break;
       case "mine":
-        nodeData[nodeIndex]["start-automine"] = false;
-        nodeData[nodeIndex]["start"] = true;
+        statusLog[nodeIndex]["start-automine"] = false;
+        statusLog[nodeIndex]["start"] = true;
+        await updateStatus(statusLog);
         break;
       case "stopall":
-        nodeData[nodeIndex]["start-automine"] = false;
-        nodeData[nodeIndex]["start"] = false;
+        statusLog[nodeIndex]["start-automine"] = false;
+        statusLog[nodeIndex]["start"] = false;
+        await updateStatus(statusLog);
         break;
     }
-    res.json(nodeData);
+    res.json(await getStatus());
   } catch (error) {
     console.log(error);
     res.json(error);

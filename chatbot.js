@@ -23,10 +23,7 @@ const addAction = async (msg) => {
       `Which node:
 Huy: 
 /${listNode[0]}
-/${listNode[1]}
-Thien:
-/${listNode[2]}
-/${listNode[3]}`
+/${listNode[1]}`
     );
   } catch (error) {
     console.log("error add action");
@@ -87,12 +84,12 @@ Automine: <code>${e?.["start-automine"]}</code>\n\n`
           (async () => {
             await bot.sendMessage(chatId, "Loading...");
             console.log(selectedNode, findAction);
-            await axios.get(
-              `${CORE_URL}/update?address=${selectedNode}&action=${findAction?.action?.replace(
-                "/",
-                ""
-              )}`
-            );
+            const url = `${CORE_URL}/update?address=${selectedNode}&action=${findAction?.action?.replace(
+              "/",
+              ""
+            )}`;
+            console.log(url);
+            await axios.get(url);
             await getStatus();
           })();
         } catch (error) {
