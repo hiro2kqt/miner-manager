@@ -1,4 +1,5 @@
 const { default: axios } = require("axios");
+const { readFile, writeFile, readFileSync } = require("fs");
 const TelegramBot = require("node-telegram-bot-api");
 require("dotenv").config();
 const listNode = JSON.parse(process.env.NODE_URL);
@@ -36,6 +37,31 @@ const addressShortener = (addr = "", digits = 5) => {
   digits = 2 * digits >= addr.length ? addr.length : digits;
   return `${addr.substring(0, digits)}...${addr.slice(-digits)}`;
 };
+
+function updateAutoclaimEnable() {
+  readFile(path, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading the file:", err);
+      return;
+    }
+
+    try {
+      const config = JSON.parse(data);
+      config.autoclaim.enable = !config.autoclaim.enable;
+      const updatedConfig = JSON.stringify(config, null, 2);
+
+      writeFile(path, updatedConfig, "utf8", (err) => {
+        if (err) {
+          console.error("Error writing to the file:", err);
+        } else {
+          console.log("Enable value updated successfully!");
+        }
+      });
+    } catch (parseError) {
+      console.error("Error parsing JSON:", parseError);
+    }
+  });
+}
 bot.on("message", (msg) => {
   const chatId = msg.chat.id;
   const getStatus = async () => {
@@ -45,10 +71,15 @@ bot.on("message", (msg) => {
       chatId,
       `${data
         .map(
-          (e, index) => `<b>${addressShortener(e?.address)}</b>
+          (e, index) => `<b>${addressShortener(e?.address)}</b> | <b>${
+            e?.start
+              ? "Mining"
+              : e?.["start-automine"]
+              ? "Automine"
+              : "Not running"
+          }</b>
 Claim: <code>${e?.claim}</code>
-Normal mine: <code>${e?.start}</code>
-Automine: <code>${e?.["start-automine"]}</code>\n\n`
+\n`
         )
         .join("")}`,
       {
@@ -56,7 +87,30 @@ Automine: <code>${e?.["start-automine"]}</code>\n\n`
       }
     );
   };
+  const getConfig = async () => {
+    try {
+      const data = readFileSync("config.json", "utf-8");
+      const parseData = JSON.parse(data);
+      await bot.sendMessage(
+        chatId,
+        `Auto Claim: <code>${
+          parseData?.autoclaim?.enable ? "ENABLE" : "DISABLE"
+        }</code>
+<b>${parseData?.autoclaim?.on ? "ON" : "OFF"}</b> <code>${
+          parseData?.autoclaim?.thresshold
+        }</code>`,
+        {
+          parse_mode: "HTML",
+        }
+      );
+    } catch (error) {
+      console.log("CONFIG", error);
+    }
+  };
   switch (msg?.text) {
+    case "/config":
+      getConfig();
+      break;
     case "/nodestatus":
       (async () => {
         await bot.sendMessage(chatId, "Loading...");
@@ -77,6 +131,9 @@ Automine: <code>${e?.["start-automine"]}</code>\n\n`
       break;
     case "/stopall":
       addAction(msg);
+      break;
+    case "/autoclaim":
+      updateAutoclaimEnable();
       break;
     default:
       const selectedNode = msg?.text?.replace("/", "");

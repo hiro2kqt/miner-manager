@@ -1,12 +1,15 @@
 const express = require("express");
-const { readFileSync, writeFileSync } = require("fs");
-const { getCurrentConfig } = require("./automode");
+const { readFileSync, writeFileSync, readFile, writeFile } = require("fs");
 const app = express();
 require("dotenv").config();
-require("./automode");
-
+// require("./automode");
+const configPath = "config.json";
 const getStatus = async () => {
   const data = readFileSync("status.json", "utf8");
+  return JSON.parse(data);
+};
+const getCurrentConfig = async () => {
+  const data = readFileSync(configPath, "utf8");
   return JSON.parse(data);
 };
 getStatus();
@@ -72,9 +75,22 @@ app.get("/autoclaim", async (req, res) => {
   }
 });
 
-app.post("/autoclaim", async (req, res) => {
+app.get("/autoclaim/enable", async (req, res) => {
   try {
-    console.log(req);
+    const config = await getCurrentConfig();
+    config.autoclaim.enable = !config.autoclaim.enable;
+    writeFileSync(configPath, JSON.stringify(config));
+    res.json(await getCurrentConfig());
+  } catch (error) {
+    console.log(error);
+  }
+});
+app.get("/autoclaim/switch", async (req, res) => {
+  try {
+    const config = await getCurrentConfig();
+    config.autoclaim.on = !config.autoclaim.on;
+    writeFileSync(configPath, JSON.stringify(config));
+    res.json(await getCurrentConfig());
   } catch (error) {
     console.log(error);
   }

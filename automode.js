@@ -115,8 +115,9 @@ const processAutomate = async () => {
 //   }
 // })();
 
-const tenSecondlyTask = () => {
-  processAutomate();
+const tenSecondlyTask = async () => {
+  let configf = await getCurrentConfig();
+  if (configf?.autoclaim?.enable) processAutomate();
 };
 
 const cronExpression = "0 */10 * * * *";
