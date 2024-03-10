@@ -1,7 +1,9 @@
 const express = require("express");
 const { readFileSync, writeFileSync } = require("fs");
+const { getCurrentConfig } = require("./automode");
 const app = express();
 require("dotenv").config();
+require("./automode");
 
 const getStatus = async () => {
   const data = readFileSync("status.json", "utf8");
@@ -59,6 +61,22 @@ app.get("/update", async (req, res) => {
   } catch (error) {
     console.log(error);
     res.json(error);
+  }
+});
+app.get("/autoclaim", async (req, res) => {
+  try {
+    const data = await getCurrentConfig();
+    res.json(data);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.post("/autoclaim", async (req, res) => {
+  try {
+    console.log(req);
+  } catch (error) {
+    console.log(error);
   }
 });
 
