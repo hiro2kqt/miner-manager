@@ -96,11 +96,12 @@ const processAutomate = async () => {
     const claimGas = ethPrice * gasFee?.claimSolution;
     if (
       realReward >= +configf.autoclaim.thresshold &&
-      claimGas <= +configf.autoclaim.limitgas &&
-      !configf.autoclaim.on
+      claimGas <= +configf.autoclaim.limitgas
     ) {
-      console.log("run claim", realReward);
-      await axios.get(`${process.env.CORE_URL}/autoclaim/switch`);
+      if (!configf.autoclaim.on) {
+        console.log("run claim", realReward);
+        await axios.get(`${process.env.CORE_URL}/autoclaim/switch`);
+      } else console.log("Already running");
     } else {
       if (configf.autoclaim.on) {
         console.log("run stop claim", realReward);
