@@ -37,10 +37,22 @@ app.get("/update", async (req, res) => {
     const nodeIndex = statusLog.findIndex((e) => e?.address == address);
     switch (req?.query?.action) {
       case "claim":
-        statusLog[nodeIndex]["claim"] = true;
-        await updateStatus(statusLog);
+        if (statusLog[nodeIndex]?.autoclaim == false) {
+          statusLog[nodeIndex]["claim"] = true;
+          await updateStatus(statusLog);
+        }
         break;
       case "stopclaim":
+        statusLog[nodeIndex]["claim"] = false;
+        await updateStatus(statusLog);
+        break;
+      case "autoclaim":
+        statusLog[nodeIndex]["autoclaim"] = true;
+        statusLog[nodeIndex]["claim"] = false;
+        await updateStatus(statusLog);
+        break;
+      case "stopautoclaim":
+        statusLog[nodeIndex]["autoclaim"] = false;
         statusLog[nodeIndex]["claim"] = false;
         await updateStatus(statusLog);
         break;
