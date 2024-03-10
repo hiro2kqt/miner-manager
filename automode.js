@@ -54,7 +54,7 @@ const fetchPrice = async () => {
         const submiskTask = rs?.data?.result.find(
           (el) => el.functionName.includes(method) && el.isError == "0"
         );
-        if (submiskTask?.gasUsed) data[method] = submiskTask.gasUsed;
+        if (submiskTask?.gasUsed) data[method] = ethers.formatEther(submiskTask.gasUsed);
       });
     }
     return data;
@@ -72,12 +72,13 @@ const processAutomate = async () => {
   try {
     const resp = await axios.get(`${process.env.CORE_URL}/autoclaim`);
     const configf = resp.data;
+    console.log(configf);
     if (!configf?.autoclaim?.enable) return;
 
     const gasFee = await fetchPrice();
     const reward = await fetchReward();
     const realReward = reward * 0.9;
-
+    console.log(gasFee);
     if (realReward >= +configf.autoclaim.thresshold && !configf.autoclaim.on) {
       console.log("run claim", realReward);
       await axios.get(`${process.env.CORE_URL}/autoclaim/switch`);

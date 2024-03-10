@@ -98,7 +98,17 @@ app.get("/autoclaim/switch", async (req, res) => {
 app.get("/autoclaim/thresshold", async (req, res) => {
   try {
     const config = await getCurrentConfig();
-    config.autoclaim.thresshold = +req?.query?.value
+    config.autoclaim.thresshold = +req?.query?.value;
+    writeFileSync(configPath, JSON.stringify(config));
+    res.json(await getCurrentConfig());
+  } catch (error) {
+    console.log(error);
+  }
+});
+app.get("/autoclaim/gas", async (req, res) => {
+  try {
+    const config = await getCurrentConfig();
+    config.autoclaim.limitgas = +req?.query?.value;
     writeFileSync(configPath, JSON.stringify(config));
     res.json(await getCurrentConfig());
   } catch (error) {
