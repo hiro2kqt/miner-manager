@@ -16,6 +16,7 @@
   },
   "scripts": {
     "start": "npx nodemon index.js",
-    "bot": "npx nodemon chatbot.js"
+    "bot": "npx nodemon chatbot.js",
+    "auto": "npx nodemon automode.js"
   }
 }

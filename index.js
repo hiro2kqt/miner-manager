@@ -95,6 +95,16 @@ app.get("/autoclaim/switch", async (req, res) => {
     console.log(error);
   }
 });
+app.get("/autoclaim/thresshold", async (req, res) => {
+  try {
+    const config = await getCurrentConfig();
+    config.autoclaim.thresshold = +req?.query?.value
+    writeFileSync(configPath, JSON.stringify(config));
+    res.json(await getCurrentConfig());
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running at http://localhost:${process.env.PORT}`);
