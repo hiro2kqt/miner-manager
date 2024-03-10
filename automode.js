@@ -54,7 +54,10 @@ const fetchPrice = async () => {
         const submiskTask = rs?.data?.result.find(
           (el) => el.functionName.includes(method) && el.isError == "0"
         );
-        if (submiskTask?.gasUsed) data[method] = ethers.formatEther(submiskTask.gasUsed);
+        if (submiskTask?.gasUsed)
+          data[method] = ethers.formatEther(
+            submiskTask.gasUsed * rs?.data?.result?.[0]?.gasPrice
+          );
       });
     }
     return data;
@@ -68,6 +71,17 @@ const fetchReward = async () => {
     return ethers.formatEther(reward);
   } catch (error) {}
 };
+async function getEthPrice() {
+  try {
+    const response = await axios.get(
+      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
+    );
+
+    return response.data.ethereum.usd;
+  } catch (error) {
+    console.error("Error:", error.message);
+  }
+}
 const processAutomate = async () => {
   try {
     const resp = await axios.get(`${process.env.CORE_URL}/autoclaim`);
@@ -78,16 +92,20 @@ const processAutomate = async () => {
     const gasFee = await fetchPrice();
     const reward = await fetchReward();
     const realReward = reward * 0.9;
-    console.log(gasFee);
-    if (realReward >= +configf.autoclaim.thresshold && !configf.autoclaim.on) {
+    const ethPrice = await getEthPrice();
+    const claimGas = ethPrice * gasFee?.claimSolution;
+    if (
+      realReward >= +configf.autoclaim.thresshold &&
+      claimGas <= +configf.autoclaim.limitgas &&
+      !configf.autoclaim.on
+    ) {
       console.log("run claim", realReward);
       await axios.get(`${process.env.CORE_URL}/autoclaim/switch`);
-    } else if (
-      realReward <= +configf.autoclaim.thresshold &&
-      configf.autoclaim.on
-    ) {
-      console.log("run stop claim", realReward);
-      await axios.get(`${process.env.CORE_URL}/autoclaim/switch`);
+    } else {
+      if (configf.autoclaim.on) {
+        console.log("run stop claim", realReward);
+        await axios.get(`${process.env.CORE_URL}/autoclaim/switch`);
+      }
     }
   } catch (error) {
     console.log(error);
