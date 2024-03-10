@@ -94,6 +94,7 @@ const processAutomate = async () => {
     const realReward = reward * 0.9;
     const ethPrice = await getEthPrice();
     const claimGas = ethPrice * gasFee?.claimSolution;
+    console.log("Reward: ", realReward, "gas: ", claimGas);
     if (
       realReward >= +configf.autoclaim.thresshold &&
       claimGas <= +configf.autoclaim.limitgas
