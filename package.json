@@ -15,8 +15,6 @@
     "sqlite3": "^5.1.7"
   },
   "scripts": {
-    "start": "npx nodemon index.js",
-    "bot": "npx nodemon chatbot.js",
-    "auto": "npx nodemon automode.js"
+    "start": "npx nodemon index.js"
   }
 }

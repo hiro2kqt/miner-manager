@@ -12,7 +12,6 @@ const getCurrentConfig = async () => {
   const data = readFileSync(configPath, "utf8");
   return JSON.parse(data);
 };
-getStatus();
 app.get("/", (req, res) => {
   res.send("Arbius manager api");
 });
@@ -46,16 +45,6 @@ app.get("/update", async (req, res) => {
         statusLog[nodeIndex]["claim"] = false;
         await updateStatus(statusLog);
         break;
-      case "autoclaim":
-        statusLog[nodeIndex]["autoclaim"] = true;
-        statusLog[nodeIndex]["claim"] = false;
-        await updateStatus(statusLog);
-        break;
-      case "stopautoclaim":
-        statusLog[nodeIndex]["autoclaim"] = false;
-        statusLog[nodeIndex]["claim"] = false;
-        await updateStatus(statusLog);
-        break;
       case "automine":
         statusLog[nodeIndex]["start-automine"] = true;
         statusLog[nodeIndex]["start"] = false;
@@ -78,7 +67,7 @@ app.get("/update", async (req, res) => {
     res.json(error);
   }
 });
-app.get("/autoclaim", async (req, res) => {
+app.get("/auto/status", async (req, res) => {
   try {
     const data = await getCurrentConfig();
     res.json(data);
@@ -87,27 +76,27 @@ app.get("/autoclaim", async (req, res) => {
   }
 });
 
-app.get("/autoclaim/enable", async (req, res) => {
+app.get("/auto/claim/enable", async (req, res) => {
   try {
     const config = await getCurrentConfig();
-    config.autoclaim.enable = !config.autoclaim.enable;
+    config.autoclaim.enable = true;
     writeFileSync(configPath, JSON.stringify(config));
     res.json(await getCurrentConfig());
   } catch (error) {
     console.log(error);
   }
 });
-app.get("/autoclaim/switch", async (req, res) => {
+app.get("/auto/claim/disable", async (req, res) => {
   try {
     const config = await getCurrentConfig();
-    config.autoclaim.on = !config.autoclaim.on;
+    config.autoclaim.enable = false;
     writeFileSync(configPath, JSON.stringify(config));
     res.json(await getCurrentConfig());
   } catch (error) {
     console.log(error);
   }
 });
-app.get("/autoclaim/thresshold", async (req, res) => {
+app.get("/auto/claim/thresshold", async (req, res) => {
   try {
     const config = await getCurrentConfig();
     config.autoclaim.thresshold = +req?.query?.value;
@@ -117,10 +106,42 @@ app.get("/autoclaim/thresshold", async (req, res) => {
     console.log(error);
   }
 });
-app.get("/autoclaim/gas", async (req, res) => {
+app.get("/auto/claim/gas", async (req, res) => {
   try {
     const config = await getCurrentConfig();
     config.autoclaim.limitgas = +req?.query?.value;
+    writeFileSync(configPath, JSON.stringify(config));
+    res.json(await getCurrentConfig());
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+
+app.get("/auto/automine/enable", async (req, res) => {
+  try {
+    const config = await getCurrentConfig();
+    config.automine.enable = true;
+    writeFileSync(configPath, JSON.stringify(config));
+    res.json(await getCurrentConfig());
+  } catch (error) {
+    console.log(error);
+  }
+});
+app.get("/auto/automine/disable", async (req, res) => {
+  try {
+    const config = await getCurrentConfig();
+    config.automine.enable = false;
+    writeFileSync(configPath, JSON.stringify(config));
+    res.json(await getCurrentConfig());
+  } catch (error) {
+    console.log(error);
+  }
+});
+app.get("/auto/automine/gas", async (req, res) => {
+  try {
+    const config = await getCurrentConfig();
+    config.automine.limitgas = +req?.query?.value;
     writeFileSync(configPath, JSON.stringify(config));
     res.json(await getCurrentConfig());
   } catch (error) {

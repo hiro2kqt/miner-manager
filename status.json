@@ -1,1 +1,26 @@
-[{"address":"0xDDfb3eE2E3801fb53BB0Df20E2A8bFdda0186858","claim":false,"start-automine":false,"start":false,"autoclaim":false},{"address":"0x040c266875914B3C0aEcB70Ea0c5dD1cB577f650","claim":false,"start-automine":false,"start":false,"autoclaim":false},{"address":"0xc70419efB9850955950785A2D64117f13a4bd2C7","claim":true,"start-automine":true,"start":false,"autoclaim":false},{"address":"0xE25D49F603a7E3822Fc3CA9762cb60C5e9F3274B","claim":false,"start-automine":false,"start":false,"autoclaim":false}]
+[
+  {
+    "address": "0xDDfb3eE2E3801fb53BB0Df20E2A8bFdda0186858",
+    "claim": false,
+    "start-automine": false,
+    "start": false
+  },
+  {
+    "address": "0x040c266875914B3C0aEcB70Ea0c5dD1cB577f650",
+    "claim": false,
+    "start-automine": false,
+    "start": false
+  },
+  {
+    "address": "0xc70419efB9850955950785A2D64117f13a4bd2C7",
+    "claim": false,
+    "start-automine": false,
+    "start": false
+  },
+  {
+    "address": "0xE25D49F603a7E3822Fc3CA9762cb60C5e9F3274B",
+    "claim": false,
+    "start-automine": false,
+    "start": false
+  }
+]
