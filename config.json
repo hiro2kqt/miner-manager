@@ -1,1 +1,8 @@
-{"autoclaim":{"enable":true,"thressholdtop":0.002,"thressholdbottom":0.0012,"limitgas":0.1},"automine":{"enable":false,"limitgas":1.2}}
+{
+  "autoclaim": {
+    "enable": true,
+    "thresshold": 0.0012,
+    "limitgas": 0.1
+  },
+  "automine": { "enable": false, "limitgas": 1.2 }
+}
